@@ -46,6 +46,9 @@ public class ContactsListRVAdapter extends RecyclerView.Adapter<ContactsListRVAd
         } else {
             sTextDrawable = sFullName.substring(0,1);
         }
+        /*
+        TextDrawable will set image drawable like google contacts
+         */
         TextDrawable drawable = TextDrawable.builder()
                 .buildRound(sTextDrawable,context.getResources().getColor(R.color.colorPrimaryDark));
 
