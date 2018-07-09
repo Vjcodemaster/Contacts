@@ -1,7 +1,11 @@
 package com.antimatter.contact;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -13,6 +17,7 @@ import android.widget.TextView;
 import net.cachapa.expandablelayout.ExpandableLayout;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import app_utility.TextDrawable;
 
@@ -46,12 +51,13 @@ public class ContactsListRVAdapter extends RecyclerView.Adapter<ContactsListRVAd
         } else {
             sTextDrawable = sFullName.substring(0,1);
         }
+
+
         /*
         TextDrawable will set image drawable like google contacts
-        push
          */
         TextDrawable drawable = TextDrawable.builder()
-                .buildRound(sTextDrawable,context.getResources().getColor(R.color.colorPrimaryDark));
+                .buildRect(sTextDrawable,context.getResources().getColor(R.color.colorPrimaryDark));
 
         holder.tvName.setText(sFullName);
         holder.tvPhone.setText(alPhone.get(position));
@@ -85,4 +91,6 @@ public class ContactsListRVAdapter extends RecyclerView.Adapter<ContactsListRVAd
 
         }
     }
+
+
 }
