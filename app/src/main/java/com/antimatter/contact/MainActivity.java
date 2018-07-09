@@ -2,6 +2,7 @@ package com.antimatter.contact;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.DownloadManager;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -21,11 +22,21 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.logging.Level;
 
 import app_utility.PermissionHandler;
 
@@ -45,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         init();
     }
 
@@ -213,14 +223,19 @@ public class MainActivity extends AppCompatActivity {
             String contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
             int phoneContactID = cursor.getInt(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone._ID));
             int contactID = cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts._ID));*/
-            contactInfo.mobileNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-            contactInfo.name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-            //int phoneContactID = cursor.getInt(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone._ID));
-            contactInfo.id = String.valueOf(cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts._ID)));
-            ArrayList<ContactModel> alTmp = new ArrayList<>();
-            alTmp.add(contactInfo);
-            //Log.d("contacts: ", "name " + contactName + " " + " PhoneContactID " + phoneContactID + "  ContactID " + contactID +"," + "number" +" " + contactNumber);
-            if(!alPhone.contains(contactInfo.mobileNumber)) {
+            String contactNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+            String phone = contactNumber.replaceAll("[- ]", "");
+
+            if (!alPhone.contains(phone)) {
+                contactInfo.mobileNumber = phone;
+                //contactInfo.mobileNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)).replaceAll("[- ]","");
+                contactInfo.name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                //int phoneContactID = cursor.getInt(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone._ID));
+                contactInfo.id = String.valueOf(cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts._ID)));
+                ArrayList<ContactModel> alTmp = new ArrayList<>();
+                alTmp.add(contactInfo);
+                //Log.d("contacts: ", "name " + contactName + " " + " PhoneContactID " + phoneContactID + "  ContactID " + contactID +"," + "number" +" " + contactNumber);
+                //if(!alPhone.contains(contactInfo.mobileNumber)) {
                 lHMContactsList.put(contactInfo.id, alTmp);
                 alName.add(contactInfo.name);
                 alPhone.add(contactInfo.mobileNumber);
@@ -235,5 +250,45 @@ public class MainActivity extends AppCompatActivity {
         setAdapter(alName, alPhone);
 
     }
+
+    /*private void getToken(){
+        String CLIENT_ID = "837282398437-6ei51k7v57fpi5adm61eq7tq6in1218r.apps.googleusercontent.com";
+        String CLIENT_SECRET = "see instructions in accepted answer";
+        String REFRESH_TOKEN = "see instructions in accepted answer";
+
+        GoogleCredential.Builder builder = new GoogleCredential.Builder();
+        try {
+            builder.setTransport(GoogleNetHttpTransport.newTrustedTransport());
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        builder.setJsonFactory(JacksonFactory.getDefaultInstance());
+        builder.setClientSecrets(CLIENT_ID, CLIENT_SECRET);
+
+        Credential credential = builder.build();
+        credential.setRefreshToken(REFRESH_TOKEN);
+        try {
+            credential.refreshToken(); // gets the access token, using the refresh token
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        ContactsService contactsService.setOAuth2Credentials(credential);
+
+        DownloadManager.Query query = null;
+        try {
+            query = new DownloadManager.Query(new URL("https://www.google.com/m8/feeds/contacts/default/full"));
+            query.setMaxResults(10_000);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+
+        ContactFeed allContactsFeed = contactsService.getFeed(query, ContactFeed.class);
+
+        LOGGER.log(Level.INFO, allContactsFeed.getTitle().getPlainText());
+    }*/
 
 }
