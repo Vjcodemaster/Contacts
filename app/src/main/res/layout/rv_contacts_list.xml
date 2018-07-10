@@ -7,6 +7,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="2dp"
     app:cardCornerRadius="10dp"
+    app:cardBackgroundColor="@color/colorPrimary"
     app:cardElevation="2dp"
     android:foreground="?android:attr/selectableItemBackground"
     android:clickable="true"
@@ -46,7 +47,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:textAppearanceMedium"
-                android:textColor="@color/dividorColor"
+                android:textColor="@color/primaryText"
                 android:textSize="14sp"
                 android:textStyle="bold"/>
 
@@ -55,7 +56,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:textAppearanceSmall"
-                android:textColor="@color/dividorColor"
+                android:textColor="@color/line"
                 android:textSize="12sp"/>
         </LinearLayout>
     </LinearLayout>

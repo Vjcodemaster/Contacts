@@ -2,9 +2,9 @@
 <resources>
     <color name="colorPrimary">#24394c</color><!-- #24394c, #1F303F -->
     <color name="colorPrimaryDark">#1D2D3C</color>
-    <color name="colorAccent">#15eded</color><!--#FF5722 - #ff6b3d, #69F0AE, #33e3b0, #17eaea, #15eded - #18FFFF-->
+    <color name="colorAccent">#ff6b3d</color><!--#FF5722 - #ff6b3d, #69F0AE, #33e3b0, #17eaea, #15eded - #18FFFF-->
 
-    <color name="primaryText">#f4f6ff</color>
+    <color name="primaryText">#f7f8ff</color> <!-- #f7f8ff, #f4f6ff-->
     <color name="secondaryText">#BDBDBD</color> <!-- #949ca6-->
     <color name="dividorColor">#757575</color>
 

@@ -2,7 +2,6 @@ package com.antimatter.contact;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.DownloadManager;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -22,21 +21,14 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
+import com.turingtechnologies.materialscrollbar.CustomIndicator;
+import com.turingtechnologies.materialscrollbar.DragScrollBar;
+import com.turingtechnologies.materialscrollbar.TouchScrollBar;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.logging.Level;
 
 import app_utility.PermissionHandler;
 
@@ -66,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(mLinearLayoutManager);
         //recyclerView.addItemDecoration(new DividerItemDecoration(MainActivity.this, DividerItemDecoration.VERTICAL));
         recyclerView.setHasFixedSize(true);
+        ((DragScrollBar) findViewById(R.id.dragScrollBar)).setIndicator(new CustomIndicator(this), true);
 
         //contactsListRVAdapter = new ContactsListRVAdapter(this, recyclerView, alName, alPhone);
         //recyclerView.setAdapter(contactsListRVAdapter);
@@ -248,7 +241,6 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d("size of contacts: ", "" + lHMContactsList.size());
         setAdapter(alName, alPhone);
-
     }
 
     /*private void getToken(){

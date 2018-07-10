@@ -14,6 +14,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.turingtechnologies.materialscrollbar.ICustomAdapter;
+
 import net.cachapa.expandablelayout.ExpandableLayout;
 
 import java.util.ArrayList;
@@ -21,7 +23,7 @@ import java.util.HashMap;
 
 import app_utility.TextDrawable;
 
-public class ContactsListRVAdapter extends RecyclerView.Adapter<ContactsListRVAdapter.ContactsListHolder> {
+public class ContactsListRVAdapter extends RecyclerView.Adapter<ContactsListRVAdapter.ContactsListHolder> implements ICustomAdapter{
     Context context;
     RecyclerView recyclerView;
     ArrayList<String> alName;
@@ -67,6 +69,12 @@ public class ContactsListRVAdapter extends RecyclerView.Adapter<ContactsListRVAd
     @Override
     public int getItemCount() {
         return alName.size();
+    }
+
+    @Override
+    public String getCustomStringForElement(int element) {
+
+        return alName.get(element).substring(0, 1);
     }
 
     public class ContactsListHolder extends RecyclerView.ViewHolder implements View.OnClickListener, ExpandableLayout.OnExpansionUpdateListener {
