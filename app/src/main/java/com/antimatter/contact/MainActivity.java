@@ -23,7 +23,6 @@ import android.util.Log;
 
 import com.turingtechnologies.materialscrollbar.CustomIndicator;
 import com.turingtechnologies.materialscrollbar.DragScrollBar;
-import com.turingtechnologies.materialscrollbar.TouchScrollBar;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -59,10 +58,14 @@ public class MainActivity extends AppCompatActivity {
         //recyclerView.addItemDecoration(new DividerItemDecoration(MainActivity.this, DividerItemDecoration.VERTICAL));
         recyclerView.setHasFixedSize(true);
         ((DragScrollBar) findViewById(R.id.dragScrollBar)).setIndicator(new CustomIndicator(this), true);
-
         //contactsListRVAdapter = new ContactsListRVAdapter(this, recyclerView, alName, alPhone);
         //recyclerView.setAdapter(contactsListRVAdapter);
     }
+
+    /*public int pxToDp(int px) {
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        return Math.round(px / (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+    }*/
 
     @Override
     public void onStart() {
