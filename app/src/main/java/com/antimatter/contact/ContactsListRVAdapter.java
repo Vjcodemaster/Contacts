@@ -1,11 +1,6 @@
 package com.antimatter.contact;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -19,7 +14,6 @@ import com.turingtechnologies.materialscrollbar.ICustomAdapter;
 import net.cachapa.expandablelayout.ExpandableLayout;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import app_utility.TextDrawable;
 

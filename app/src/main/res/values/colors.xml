@@ -11,4 +11,7 @@
     <color name="buttonBackground">#293847</color>
     <color name="line">#768290</color>
     <color name="circleBackground">#253443</color>
+
+    <color name="semiTransparent">#7FC0C0C0</color>
+    <color name="transparent">#00000000</color>
 </resources>
