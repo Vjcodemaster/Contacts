@@ -1,6 +1,7 @@
 package com.antimatter.contact;
 
 import android.Manifest;
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -10,22 +11,37 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.graphics.Point;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.view.ScrollingView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.DragEvent;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AbsListView;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.turingtechnologies.materialscrollbar.CustomIndicator;
 import com.turingtechnologies.materialscrollbar.DragScrollBar;
 
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -37,12 +53,20 @@ import static app_utility.PermissionHandler.WRITE_CONTACTS_PERMISSION;
 public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
 
+    ImageView ivDemo;
+    int overallXScroll;
+
     LinkedHashMap<String, ArrayList<ContactModel>> lHMContactsList = new LinkedHashMap<>();
     int nPermissionFlag = 0;
+    LinearLayoutManager mLinearLayoutManager;
 
     ArrayList<String> alName = new ArrayList<>();
     ArrayList<String> alPhone = new ArrayList<>();
     ContactsListRVAdapter contactsListRVAdapter;
+
+    float dX, dY;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,20 +76,146 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void init() {
+        ivDemo = findViewById(R.id.iv_demo);
+
         recyclerView = findViewById(R.id.rv_contacts_list);
-        LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(MainActivity.this);
+        mLinearLayoutManager = new LinearLayoutManager(MainActivity.this);
         mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(mLinearLayoutManager);
         //recyclerView.addItemDecoration(new DividerItemDecoration(MainActivity.this, DividerItemDecoration.VERTICAL));
         recyclerView.setHasFixedSize(true);
+        recyclerView.setDrawingCacheEnabled(true);
+        recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                /*LinearLayoutManager manager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                int position = manager.findFirstVisibleItemPosition();
+                View firstItemView = manager.findViewByPosition(position);
+                float Offset = firstItemView.getBottom();
+
+                overallXScroll = overallXScroll + dy;
+                Log.i("check","overall y  = " + overallXScroll);
+                ObjectAnimator anim = ObjectAnimator.ofFloat(ivDemo,"y",Offset);
+                anim.setDuration(3000); // duration 3 seconds
+                anim.start();*/
+            }
+
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                ObjectAnimator anim = null;
+                int[] nOffSetLocation = new int[2];
+
+                if (RecyclerView.SCROLL_STATE_DRAGGING == newState) {
+                    //getFastScrollThumbPoint(recyclerView);
+                    //float lastFirstVisiblePosition = ((LinearLayoutManager)recyclerView.getLayoutManager()).getChildAt(0).getY();
+                    ((LinearLayoutManager)recyclerView.getLayoutManager()).getChildAt(10).getLocationOnScreen(nOffSetLocation);
+                    //int offset = recyclerView.computeVerticalScrollOffset();
+                    int offset = recyclerView.getChildAt(0).getScrollY();
+                    anim = ObjectAnimator.ofFloat(ivDemo,"y",nOffSetLocation[1]);
+                    //anim.setTarget(recyclerView.focusSearch(recyclerView, View.FOCUS_RIGHT));
+                    anim.setDuration(150);
+                    anim.start();
+                } else if (RecyclerView.SCROLL_STATE_IDLE == newState) {
+                    if(anim!=null) {
+                        anim.cancel();
+                    }
+                } else {
+                    // Do something
+                }
+            }
+        });
         //((DragScrollBar) findViewById(R.id.dragScrollBar)).setIndicator(new CustomIndicator(this), true);
         //contactsListRVAdapter = new ContactsListRVAdapter(this, recyclerView, alName, alPhone);
         //recyclerView.setAdapter(contactsListRVAdapter);
     }
 
+    /*private Point getFastScrollThumbPoint(final RecyclerView listView) {
+        try {
+            final Class<?> fastScrollerClass = Class.forName("android.support.v7.widget.RecyclerView");
+
+            final int[] listViewLocation = new int[2];
+            listView.getLocationInWindow(listViewLocation);
+            int x = listViewLocation[0];
+            int y = listViewLocation[1];
+
+            final Field fastScrollerField;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                RecyclerView.class.getDeclaredClasses();
+                fastScrollerField = RecyclerView.class.getDeclaredField("smoothScroller");
+            }
+            else {
+                fastScrollerField = RecyclerView.class.getDeclaredField("smoothScroller");
+            }
+            fastScrollerField.setAccessible(true);
+
+            final Object fastScroller = fastScrollerField.get(listView);
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                final Field thumbImageViewField = fastScrollerClass.getDeclaredField("mThumbImage");
+                thumbImageViewField.setAccessible(true);
+                final ImageView thumbImageView = (ImageView) thumbImageViewField.get(fastScroller);
+
+                final int[] thumbViewLocation = new int[2];
+                thumbImageView.getLocationInWindow(thumbViewLocation);
+
+                x += thumbViewLocation[0] + thumbImageView.getWidth() / 2;
+                y += thumbViewLocation[1] + thumbImageView.getHeight() / 2;
+            }
+            else {
+                final Field thumbDrawableField = fastScrollerClass.getDeclaredField("mThumbDrawable");
+                thumbDrawableField.setAccessible(true);
+                final Drawable thumbDrawable = (Drawable) thumbDrawableField.get(fastScroller);
+                final Rect bounds = thumbDrawable.getBounds();
+
+                final Field thumbYField = fastScrollerClass.getDeclaredField("mThumbY");
+                thumbYField.setAccessible(true);
+                final int thumbY = (Integer) thumbYField.get(fastScroller);
+
+                x += bounds.left + bounds.width() / 2;
+                y += thumbY + bounds.height() / 2;
+            }
+
+            return new Point(x, y);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }*/
+
     /*public int pxToDp(int px) {
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         return Math.round(px / (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+    }*/
+
+    /*@Override
+    public boolean onTouchEvent(MotionEvent event) {
+        Point pt = new Point( (int)event.getX(), (int)event.getY() );
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            Toast.makeText(MainActivity.this, "Down Eevent", Toast.LENGTH_SHORT).show();
+        }
+            *//*if (*//**//*this is an interesting event my View will handle*//**//*) {
+                // here is the fix! now without NPE
+                if (getParent() != null) {
+                    getParent().requestDisallowInterceptTouchEvent(true);
+                }
+
+                clicked_on_image = true;
+            }
+        } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+            if (clicked_on_image) {
+                //do stuff, drag the image or whatever
+            }
+        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+            clicked_on_image = false;
+        }*//*
+        return true;
     }*/
 
     @Override
