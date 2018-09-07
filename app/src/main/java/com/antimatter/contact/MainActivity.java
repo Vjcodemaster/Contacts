@@ -31,6 +31,9 @@ import android.widget.TextView;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -84,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
                 super.onScrolled(recyclerView, dx, dy);
                 //Log.d("Adapter: ", String.valueOf(recyclerView.getChildAdapterPosition(recyclerView.getLayoutManager().getChildAt(1))));
                 TextView tv = recyclerView.getLayoutManager().getChildAt(1).findViewById(R.id.tv_rv_name);
-                String sAlphabet = tv.getText().toString().substring(0,1);
+                String sAlphabet = tv.getText().toString().substring(0, 1);
                 tvAlphabet.setText(sAlphabet);
                 //Log.d("Dragging scroll", "Scrolling" + dy);
                 /*if(dy >0 || dy <0){
@@ -449,6 +452,8 @@ public class MainActivity extends AppCompatActivity {
     void getAllContacts() {
         long startnow;
         long endnow;
+        ArrayList<ContactModel> alTmp = new ArrayList<>();
+        HashSet<String> hsPhoneNo = new HashSet<>();
 
         startnow = android.os.SystemClock.uptimeMillis();
         ArrayList arrContacts = new ArrayList();
@@ -465,6 +470,76 @@ public class MainActivity extends AppCompatActivity {
             String contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
             int phoneContactID = cursor.getInt(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone._ID));
             int contactID = cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts._ID));*/
+            String contactNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+            String phone = contactNumber.replaceAll("[- ]", "");
+            hsPhoneNo.add(phone);
+
+            if (hsPhoneNo.size() > alPhone.size()) {
+                contactInfo.mobileNumber = phone;
+                //contactInfo.mobileNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)).replaceAll("[- ]","");
+                contactInfo.name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                //int phoneContactID = cursor.getInt(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone._ID));
+                contactInfo.id = String.valueOf(cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts._ID)));
+                alTmp = new ArrayList<>();
+                alTmp.add(contactInfo);
+                //Log.d("contacts: ", "name " + contactName + " " + " PhoneContactID " + phoneContactID + "  ContactID " + contactID +"," + "number" +" " + contactNumber);
+                //if(!alPhone.contains(contactInfo.mobileNumber)) {
+                lHMContactsList.put(contactInfo.id, alTmp);
+                alName.add(contactInfo.name);
+                alPhone.add(contactInfo.mobileNumber);
+
+            }
+            cursor.moveToNext();
+        }
+        cursor.close();
+
+        Collections.sort(alTmp, new Comparator<ContactModel>() {
+            @Override
+            public int compare(ContactModel contactModel, ContactModel t1) {
+                return contactModel.name.compareToIgnoreCase(t1.name);
+            }
+
+            /*@Override
+            public int compare(String s1, String s2) {
+                return s1.compareToIgnoreCase(s2);
+            }*/
+        });
+        /*Collections.sort(list, new Comparator<String>() {
+            @Override
+            public int compare(String s1, String s2) {
+                return s1.compareToIgnoreCase(s2);
+            }
+        });
+
+        Or if you are using Java 8:
+
+        list.sort(String::compareToIgnoreCase);*/
+        endnow = android.os.SystemClock.uptimeMillis();
+        Log.d("END", "TimeForContacts " + (endnow - startnow) + " ms");
+
+        Log.d("size of contacts: ", "" + lHMContactsList.size());
+        setAdapter(alName, alPhone);
+    }
+
+    /*void getAllContacts() {
+        long startnow;
+        long endnow;
+
+        startnow = android.os.SystemClock.uptimeMillis();
+        ArrayList arrContacts = new ArrayList();
+
+        Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+        String selection = ContactsContract.Contacts.HAS_PHONE_NUMBER;
+        Cursor cursor = getContentResolver().query(uri, new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone._ID, ContactsContract.Contacts._ID}, selection, null, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            ContactModel contactInfo = new ContactModel();
+
+            *//*String contactNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+            String contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+            int phoneContactID = cursor.getInt(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone._ID));
+            int contactID = cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts._ID));*//*
             String contactNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
             String phone = contactNumber.replaceAll("[- ]", "");
 
@@ -490,7 +565,7 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d("size of contacts: ", "" + lHMContactsList.size());
         setAdapter(alName, alPhone);
-    }
+    }*/
 
     /*private void getToken(){
         String CLIENT_ID = "837282398437-6ei51k7v57fpi5adm61eq7tq6in1218r.apps.googleusercontent.com";
