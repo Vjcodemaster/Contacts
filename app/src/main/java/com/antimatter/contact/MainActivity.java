@@ -1,6 +1,7 @@
 package com.antimatter.contact;
 
 import android.Manifest;
+import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -11,37 +12,24 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
-import android.graphics.Point;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v4.view.ScrollingView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.TypedValue;
-import android.view.DragEvent;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.AbsListView;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.ImageView;
-import android.widget.Toast;
-
-import com.turingtechnologies.materialscrollbar.CustomIndicator;
-import com.turingtechnologies.materialscrollbar.DragScrollBar;
+import android.widget.TextView;
 
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -53,6 +41,7 @@ import static app_utility.PermissionHandler.WRITE_CONTACTS_PERMISSION;
 public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
 
+    TextView tvAlphabet;
     ImageView ivDemo;
     int overallXScroll;
 
@@ -65,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
     ContactsListRVAdapter contactsListRVAdapter;
 
     float dX, dY;
-
+    ObjectAnimator fadeOutAnimator;
 
 
     @Override
@@ -76,7 +65,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void init() {
-        ivDemo = findViewById(R.id.iv_demo);
+        tvAlphabet = findViewById(R.id.tv_alphabet);
+        //ivDemo = findViewById(R.id.iv_demo);
 
         recyclerView = findViewById(R.id.rv_contacts_list);
         mLinearLayoutManager = new LinearLayoutManager(MainActivity.this);
@@ -92,6 +82,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
+                //Log.d("Adapter: ", String.valueOf(recyclerView.getChildAdapterPosition(recyclerView.getLayoutManager().getChildAt(1))));
+                TextView tv = recyclerView.getLayoutManager().getChildAt(1).findViewById(R.id.tv_rv_name);
+                String sAlphabet = tv.getText().toString().substring(0,1);
+                tvAlphabet.setText(sAlphabet);
+                //Log.d("Dragging scroll", "Scrolling" + dy);
+                /*if(dy >0 || dy <0){
+                    fadeInAndVisibleImage(ivDemo);
+                } else
+                    fadeOutAndHideImage(ivDemo);*/
+
                 /*LinearLayoutManager manager = (LinearLayoutManager) recyclerView.getLayoutManager();
                 int position = manager.findFirstVisibleItemPosition();
                 View firstItemView = manager.findViewByPosition(position);
@@ -108,7 +108,27 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                ObjectAnimator anim = null;
+                switch (newState) {
+                    case RecyclerView.SCROLL_STATE_IDLE:
+                        //ivDemo.setVisibility(View.GONE);
+                        fadeOutAndHideImage(tvAlphabet);
+                        Log.d("NO SCROLL", "The RecyclerView is not scrolling");
+                        break;
+                    case RecyclerView.SCROLL_STATE_DRAGGING:
+                        fadeInAndVisibleImage(tvAlphabet);
+                        //ivDemo.setVisibility(View.VISIBLE);
+                        Log.d("Scrolling", "Scrolling now");
+                        break;
+                    case RecyclerView.SCROLL_STATE_SETTLING:
+                        tvAlphabet.setVisibility(View.VISIBLE);
+                        //ivDemo.setVisibility(View.VISIBLE);
+                        Log.d("SCROLL SETTLE", "Scroll settling");
+                        break;
+                }
+                /*
+                use below code to move bubble
+                 */
+                /*ObjectAnimator anim = null;
                 int[] nOffSetLocation = new int[2];
 
                 if (RecyclerView.SCROLL_STATE_DRAGGING == newState) {
@@ -127,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 } else {
                     // Do something
-                }
+                }*/
             }
         });
         //((DragScrollBar) findViewById(R.id.dragScrollBar)).setIndicator(new CustomIndicator(this), true);
@@ -229,6 +249,81 @@ public class MainActivity extends AppCompatActivity {
             if (alName.size() == 0)
                 getAllContacts();
         }
+    }
+
+    private void fadeInAndVisibleImage(final TextView tv) {
+        fadeOutAnimator = ObjectAnimator.ofFloat(tv, View.ALPHA, 0, 1);
+        fadeOutAnimator.setInterpolator(new AccelerateInterpolator());
+        fadeOutAnimator.setDuration(250);
+
+        fadeOutAnimator.start();
+
+        fadeOutAnimator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                tv.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
+    }
+
+    private void fadeOutAndHideImage(final TextView tv) {
+        ObjectAnimator fadeOutAnimator = ObjectAnimator.ofFloat(tv, View.ALPHA, 1, 0);
+        fadeOutAnimator.setInterpolator(new AccelerateInterpolator());
+        fadeOutAnimator.setDuration(400);
+
+        fadeOutAnimator.start();
+
+        fadeOutAnimator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                tv.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
+        /*Animation fadeOut = new AlphaAnimation(1, 0);
+        fadeOut.setInterpolator(new AccelerateInterpolator());
+        fadeOut.setDuration(400);
+
+        fadeOut.setAnimationListener(new Animation.AnimationListener()
+        {
+            public void onAnimationEnd(Animation animation)
+            {
+                img.setVisibility(View.GONE);
+            }
+            public void onAnimationRepeat(Animation animation) {}
+            public void onAnimationStart(Animation animation) {}
+        });*/
+
+        //img.startAnimation(fadeOut);
     }
 
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/cv_expand"
     android:layout_width="match_parent"
@@ -9,20 +9,21 @@
     android:clickable="true"
     android:focusable="true"
     android:foreground="?android:attr/selectableItemBackground"
-    app:cardBackgroundColor="@color/colorPrimary"
     app:cardCornerRadius="5dp"
     app:cardElevation="2dp">
 
-    <ImageView
+    <!--android:background="@drawable/gradient"-->
+
+    <!--<ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:contentDescription="@string/app_name"
         android:scaleType="fitXY"
-        android:src="@drawable/gradient" />
+        android:src="@drawable/gradient" />-->
 
-    <FrameLayout
+    <!--<FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent">-->
 
         <LinearLayout
             android:id="@+id/ll_parent"
@@ -38,7 +39,7 @@
 
                 <ImageView
                     android:id="@+id/circular_iv"
-                    android:layout_width="40dp"
+                    android:layout_width="50dp"
                     android:layout_height="40dp"
                     android:contentDescription="@string/app_name" />
 
@@ -82,5 +83,5 @@
             android:text="A"
             android:textAppearance="@android:style/TextAppearance.Medium"
             android:textColor="@color/colorAccent" />
-    </FrameLayout>
-</android.support.v7.widget.CardView>
+    <!--</FrameLayout>-->
+</FrameLayout>

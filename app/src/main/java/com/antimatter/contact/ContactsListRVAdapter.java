@@ -17,7 +17,7 @@ import java.util.ArrayList;
 
 import app_utility.TextDrawable;
 
-public class ContactsListRVAdapter extends RecyclerView.Adapter<ContactsListRVAdapter.ContactsListHolder> implements ICustomAdapter{
+public class ContactsListRVAdapter extends RecyclerView.Adapter<ContactsListRVAdapter.ContactsListHolder> implements ICustomAdapter {
     Context context;
     RecyclerView recyclerView;
     ArrayList<String> alName;
@@ -29,6 +29,7 @@ public class ContactsListRVAdapter extends RecyclerView.Adapter<ContactsListRVAd
         this.alName = alName;
         this.alPhone = alPhone;
     }
+
     @NonNull
     @Override
     public ContactsListHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -41,19 +42,22 @@ public class ContactsListRVAdapter extends RecyclerView.Adapter<ContactsListRVAd
         String sFullName = alName.get(position);
         String sTextDrawable;
         String[] saTextDrawable;
-        if(sFullName.contains(" ")) {
+        if (sFullName.contains(" ")) {
             saTextDrawable = sFullName.split(" ");
-            sTextDrawable = saTextDrawable[0].substring(0, 1) + saTextDrawable[1].substring(0, 1);
+            if (saTextDrawable.length >= 3)
+                sTextDrawable = saTextDrawable[0].substring(0, 1) + saTextDrawable[1].substring(0, 1) + saTextDrawable[2].substring(0, 1);
+            else
+                sTextDrawable = saTextDrawable[0].substring(0, 1) + saTextDrawable[1].substring(0, 1);
         } else {
-            sTextDrawable = sFullName.substring(0,1);
+            sTextDrawable = sFullName.substring(0, 1);
         }
-
+        sTextDrawable = sTextDrawable.replaceAll("\\d", "");
 
         /*
         TextDrawable will set image drawable like google contacts
          */
         TextDrawable drawable = TextDrawable.builder()
-                .buildRect(sTextDrawable,context.getResources().getColor(R.color.colorPrimaryDark));
+                .buildRect(sTextDrawable, context.getResources().getColor(R.color.colorPrimaryDark));
 
         holder.tvName.setText(sFullName);
         holder.tvPhone.setText(alPhone.get(position));
