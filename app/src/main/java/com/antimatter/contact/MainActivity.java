@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     int overallXScroll;
 
     LinkedHashMap<String, ArrayList<ContactModel>> lHMContactsList = new LinkedHashMap<>();
+    ArrayList<String> alContact = new ArrayList<>();
     int nPermissionFlag = 0;
     LinearLayoutManager mLinearLayoutManager;
 
@@ -285,7 +287,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void fadeOutAndHideImage(final TextView tv) {
-        ObjectAnimator fadeOutAnimator = ObjectAnimator.ofFloat(tv, View.ALPHA, 1, 0);
+        fadeOutAnimator = ObjectAnimator.ofFloat(tv, View.ALPHA, 1, 0);
         fadeOutAnimator.setInterpolator(new AccelerateInterpolator());
         fadeOutAnimator.setDuration(400);
 
@@ -399,8 +401,11 @@ public class MainActivity extends AppCompatActivity {
         alPhone.add("9901686584");
         alPhone.add("9738912399");*/
 
-        contactsListRVAdapter = new ContactsListRVAdapter(this, recyclerView, alName, alPhone);
+        /*contactsListRVAdapter = new ContactsListRVAdapter(this, recyclerView, alName, alPhone);
+        recyclerView.setAdapter(contactsListRVAdapter);*/
+        contactsListRVAdapter = new ContactsListRVAdapter(this, recyclerView, alContact);
         recyclerView.setAdapter(contactsListRVAdapter);
+
     }
 
     public class ContactModel {
@@ -484,26 +489,55 @@ public class MainActivity extends AppCompatActivity {
                 alTmp.add(contactInfo);
                 //Log.d("contacts: ", "name " + contactName + " " + " PhoneContactID " + phoneContactID + "  ContactID " + contactID +"," + "number" +" " + contactNumber);
                 //if(!alPhone.contains(contactInfo.mobileNumber)) {
-                lHMContactsList.put(contactInfo.id, alTmp);
-                alName.add(contactInfo.name);
-                alPhone.add(contactInfo.mobileNumber);
+                //lHMContactsList.put(contactInfo.id, alTmp);
+                alContact.add(contactInfo.id + "," + contactInfo.name + "," + contactInfo.mobileNumber);
+                /*alName.add(contactInfo.name);
+                alPhone.add(contactInfo.mobileNumber);*/
 
             }
             cursor.moveToNext();
         }
         cursor.close();
 
-        Collections.sort(alTmp, new Comparator<ContactModel>() {
+        /*
+        this sorts order of alContact list by numbers first and then letters
+         */
+        /*Collections.sort(alContact, new Comparator<String>() {
             @Override
-            public int compare(ContactModel contactModel, ContactModel t1) {
-                return contactModel.name.compareToIgnoreCase(t1.name);
+            public int compare(String s1, String s2) {
+                String s11 = s1.split(",")[1];
+                String s12 = s2.split(",")[1];
+                return s11.compareToIgnoreCase(s12);
             }
 
-            /*@Override
-            public int compare(String s1, String s2) {
-                return s1.compareToIgnoreCase(s2);
-            }*/
+        });*/
+        /*
+        sorts the order of alContact list by letters first and then numbers and others
+         */
+
+        Collections.sort(alContact, new Comparator<String>() {
+            @Override
+            public int compare(String lhs, String rhs) {
+                String s11 = lhs.split(",")[1];
+                String s12 = rhs.split(",")[1];
+                boolean lhsStartsWithLetter = Character.isLetter(s11.charAt(0));
+                boolean rhsStartsWithLetter = Character.isLetter(s12.charAt(0));
+
+                if ((lhsStartsWithLetter && rhsStartsWithLetter) || (!lhsStartsWithLetter && !rhsStartsWithLetter)) {
+                    // they both start with letters or not-a-letters
+                    return s11.compareToIgnoreCase(s12);
+                } else if (lhsStartsWithLetter) {
+                    // the first string starts with letter and the second one is not
+                    return -1;
+                } else {
+                    // the second string starts with letter and the first one is not
+                    return 1;
+                }
+            }
+
         });
+
+
         /*Collections.sort(list, new Comparator<String>() {
             @Override
             public int compare(String s1, String s2) {

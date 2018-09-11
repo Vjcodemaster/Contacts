@@ -22,12 +22,19 @@ public class ContactsListRVAdapter extends RecyclerView.Adapter<ContactsListRVAd
     RecyclerView recyclerView;
     ArrayList<String> alName;
     ArrayList<String> alPhone;
+    ArrayList<String> alContacts;
 
     ContactsListRVAdapter(Context context, RecyclerView recyclerView, ArrayList<String> alName, ArrayList<String> alPhone) {
         this.context = context;
         this.recyclerView = recyclerView;
         this.alName = alName;
         this.alPhone = alPhone;
+    }
+
+    ContactsListRVAdapter(Context context, RecyclerView recyclerView, ArrayList<String> alContacts) {
+        this.context = context;
+        this.recyclerView = recyclerView;
+        this.alContacts = alContacts;
     }
 
     @NonNull
@@ -39,17 +46,18 @@ public class ContactsListRVAdapter extends RecyclerView.Adapter<ContactsListRVAd
 
     @Override
     public void onBindViewHolder(@NonNull ContactsListHolder holder, int position) {
-        String sFullName = alName.get(position);
+        //String sFullName = alName.get(position);
+        String sFullName = alContacts.get(position).split(",")[1];
         String sTextDrawable;
         String[] saTextDrawable;
         if (sFullName.contains(" ")) {
             saTextDrawable = sFullName.split(" ");
             if (saTextDrawable.length >= 3)
-                sTextDrawable = saTextDrawable[0].substring(0, 1) + saTextDrawable[1].substring(0, 1) + saTextDrawable[2].substring(0, 1);
+                sTextDrawable = saTextDrawable[0].substring(0, 1) + saTextDrawable[1].substring(0, 1) + saTextDrawable[2].substring(0, 1).toUpperCase();
             else
-                sTextDrawable = saTextDrawable[0].substring(0, 1) + saTextDrawable[1].substring(0, 1);
+                sTextDrawable = saTextDrawable[0].substring(0, 1) + saTextDrawable[1].substring(0, 1).toUpperCase();
         } else {
-            sTextDrawable = sFullName.substring(0, 1);
+            sTextDrawable = sFullName.substring(0, 1).toUpperCase();
         }
         sTextDrawable = sTextDrawable.replaceAll("\\d", "");
 
@@ -60,19 +68,21 @@ public class ContactsListRVAdapter extends RecyclerView.Adapter<ContactsListRVAd
                 .buildRect(sTextDrawable, context.getResources().getColor(R.color.colorPrimaryDark));
 
         holder.tvName.setText(sFullName);
-        holder.tvPhone.setText(alPhone.get(position));
+        //holder.tvPhone.setText(alPhone.get(position));
+        holder.tvPhone.setText(alContacts.get(position).split(",")[2]);
         holder.ivTextDrawable.setImageDrawable(drawable);
     }
 
     @Override
     public int getItemCount() {
-        return alName.size();
+        return alContacts.size();
     }
 
     @Override
     public String getCustomStringForElement(int element) {
 
-        return alName.get(element).substring(0, 1);
+        //return alName.get(element).substring(0, 1);
+        return alContacts.get(element).split(",")[1].substring(0, 1);
     }
 
     public class ContactsListHolder extends RecyclerView.ViewHolder implements View.OnClickListener, ExpandableLayout.OnExpansionUpdateListener {
