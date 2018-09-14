@@ -251,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             //setAdapter();
             //getContacts(MainActivity.this);
-            if (alName.size() == 0)
+            if (alContact.size() == 0)
                 getAllContacts();
         }
     }
@@ -476,10 +476,10 @@ public class MainActivity extends AppCompatActivity {
             int phoneContactID = cursor.getInt(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone._ID));
             int contactID = cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts._ID));*/
             String contactNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-            String phone = contactNumber.replaceAll("[- ]", "");
+            String phone = contactNumber.replaceAll("[- ()]", "");
             hsPhoneNo.add(phone);
 
-            if (hsPhoneNo.size() > alPhone.size()) {
+            if (hsPhoneNo.size() > alContact.size()) {
                 contactInfo.mobileNumber = phone;
                 //contactInfo.mobileNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)).replaceAll("[- ]","");
                 contactInfo.name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
@@ -551,7 +551,7 @@ public class MainActivity extends AppCompatActivity {
         endnow = android.os.SystemClock.uptimeMillis();
         Log.d("END", "TimeForContacts " + (endnow - startnow) + " ms");
 
-        Log.d("size of contacts: ", "" + lHMContactsList.size());
+        Log.d("size of contacts: ", "" + alContact.size());
         setAdapter(alName, alPhone);
     }
 
