@@ -9,6 +9,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.turingtechnologies.materialscrollbar.ICustomAdapter;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
@@ -23,6 +28,7 @@ public class ContactsListRVAdapter extends RecyclerView.Adapter<ContactsListRVAd
     ArrayList<String> alName;
     ArrayList<String> alPhone;
     ArrayList<String> alContacts;
+    TextDrawable drawable;
 
     ContactsListRVAdapter(Context context, RecyclerView recyclerView, ArrayList<String> alName, ArrayList<String> alPhone) {
         this.context = context;
@@ -47,30 +53,53 @@ public class ContactsListRVAdapter extends RecyclerView.Adapter<ContactsListRVAd
     @Override
     public void onBindViewHolder(@NonNull ContactsListHolder holder, int position) {
         //String sFullName = alName.get(position);
-        String sFullName = alContacts.get(position).split(",")[1];
+        String sFullName = alContacts.get(position).split("\"")[1];
         String sTextDrawable;
         String[] saTextDrawable;
         if (sFullName.contains(" ")) {
             saTextDrawable = sFullName.split(" ");
             if (saTextDrawable.length >= 3)
-                sTextDrawable = saTextDrawable[0].substring(0, 1) + saTextDrawable[1].substring(0, 1) + saTextDrawable[2].substring(0, 1).toUpperCase();
+                sTextDrawable = saTextDrawable[0].substring(0, 1) + saTextDrawable[1].substring(0, 1) + saTextDrawable[2].substring(0, 1);
             else
-                sTextDrawable = saTextDrawable[0].substring(0, 1) + saTextDrawable[1].substring(0, 1).toUpperCase();
+                sTextDrawable = saTextDrawable[0].substring(0, 1) + saTextDrawable[1].substring(0, 1);
         } else {
-            sTextDrawable = sFullName.substring(0, 1).toUpperCase();
+            sTextDrawable = sFullName.substring(0, 1);
         }
         sTextDrawable = sTextDrawable.replaceAll("\\d", "");
 
         /*
         TextDrawable will set image drawable like google contacts
          */
-        TextDrawable drawable = TextDrawable.builder()
-                .buildRect(sTextDrawable, context.getResources().getColor(R.color.colorPrimaryDark));
+        drawable = TextDrawable.builder()
+                .buildRect(sTextDrawable.toUpperCase(), context.getResources().getColor(R.color.colorPrimaryDark));
+
+        Glide.with(context)
+                .load("")
+                .placeholder(drawable)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(holder.ivTextDrawable);
+
+        /*Glide.with(context)
+                .load(drawable)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .listener(new RequestListener<TextDrawable, GlideDrawable>() {
+                    @Override
+                    public boolean onException(Exception e, TextDrawable model, Target<GlideDrawable> target, boolean isFirstResource) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(GlideDrawable resource, TextDrawable model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                        return false;
+                    }
+
+                })
+                .into(holder.ivTextDrawable);*/
 
         holder.tvName.setText(sFullName);
         //holder.tvPhone.setText(alPhone.get(position));
-        holder.tvPhone.setText(alContacts.get(position).split(",")[2]);
-        holder.ivTextDrawable.setImageDrawable(drawable);
+        holder.tvPhone.setText(alContacts.get(position).split("\"")[2]);
+        //holder.ivTextDrawable.setImageDrawable(drawable);
     }
 
     @Override
@@ -82,7 +111,7 @@ public class ContactsListRVAdapter extends RecyclerView.Adapter<ContactsListRVAd
     public String getCustomStringForElement(int element) {
 
         //return alName.get(element).substring(0, 1);
-        return alContacts.get(element).split(",")[1].substring(0, 1);
+        return alContacts.get(element).split("\"")[1].substring(0, 1);
     }
 
     public class ContactsListHolder extends RecyclerView.ViewHolder implements View.OnClickListener, ExpandableLayout.OnExpansionUpdateListener {

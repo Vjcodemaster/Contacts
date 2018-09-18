@@ -490,7 +490,9 @@ public class MainActivity extends AppCompatActivity {
                 //Log.d("contacts: ", "name " + contactName + " " + " PhoneContactID " + phoneContactID + "  ContactID " + contactID +"," + "number" +" " + contactNumber);
                 //if(!alPhone.contains(contactInfo.mobileNumber)) {
                 //lHMContactsList.put(contactInfo.id, alTmp);
-                alContact.add(contactInfo.id + "," + contactInfo.name + "," + contactInfo.mobileNumber);
+                //alContact.add(contactInfo.id + "," + contactInfo.name + "," + contactInfo.mobileNumber);
+                //alContact.add(contactInfo.id + "\"" + contactInfo.name + "\"" + contactInfo.mobileNumber);
+                alContact.add(contactInfo.id + "\"" + contactInfo.name + "\"" + contactInfo.mobileNumber);
                 /*alName.add(contactInfo.name);
                 alPhone.add(contactInfo.mobileNumber);*/
 
@@ -518,8 +520,8 @@ public class MainActivity extends AppCompatActivity {
         Collections.sort(alContact, new Comparator<String>() {
             @Override
             public int compare(String lhs, String rhs) {
-                String s11 = lhs.split(",")[1];
-                String s12 = rhs.split(",")[1];
+                String s11 = lhs.split("\"")[1];
+                String s12 = rhs.split("\"")[1];
                 boolean lhsStartsWithLetter = Character.isLetter(s11.charAt(0));
                 boolean rhsStartsWithLetter = Character.isLetter(s12.charAt(0));
 
@@ -549,9 +551,9 @@ public class MainActivity extends AppCompatActivity {
 
         list.sort(String::compareToIgnoreCase);*/
         endnow = android.os.SystemClock.uptimeMillis();
-        Log.d("END", "TimeForContacts " + (endnow - startnow) + " ms");
+        Log.e("END", "TimeForContacts " + (endnow - startnow) + " ms");
 
-        Log.d("size of contacts: ", "" + alContact.size());
+        Log.e("size of contacts: ", "" + alContact.size());
         setAdapter(alName, alPhone);
     }
 
