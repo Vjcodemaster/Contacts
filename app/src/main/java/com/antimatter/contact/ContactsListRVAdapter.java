@@ -64,11 +64,20 @@ public class ContactsListRVAdapter extends RecyclerView.Adapter<ContactsListRVAd
             /*if (saTextDrawable.length >= 3)
                 sTextDrawable = saTextDrawable[0].substring(0, 1) + saTextDrawable[1].substring(0, 1) + saTextDrawable[2].substring(0, 1);
             else*/
-                sTextDrawable = saTextDrawable[0].substring(0, 1) + saTextDrawable[1].substring(0, 1);
+            sTextDrawable = saTextDrawable[0].substring(0, 1) + saTextDrawable[1].substring(0, 1);
         } else {
             sTextDrawable = sFullName.substring(0, 1);
         }
-        sTextDrawable = sTextDrawable.replaceAll("\\d", "").toUpperCase();
+        //sTextDrawable = sTextDrawable.replaceAll("[^a-zA-Z0-9\\s]", "");
+
+        //sTextDrawable = sTextDrawable.replaceAll("\\d", "");
+        if (!sTextDrawable.substring(0, 1).toLowerCase().contains("\\d"))
+            sTextDrawable = sTextDrawable.replaceAll("\\:|\\d|\\+|\\)|\\(", "#").trim().toUpperCase();
+        if (sTextDrawable.substring(0, 1).equals("#"))
+            sTextDrawable = "";
+        sTextDrawable = sTextDrawable.replaceAll("#", "");
+            //if(!sTextDrawable.contains(".*\\\\d+.*"))
+            holder.tvAlphabet.setText(sTextDrawable.toUpperCase());
 
         /*if(!sTextDrawable.equals(sTmp)){
             lhsAlphabetsIndex.add(position);
@@ -77,7 +86,7 @@ public class ContactsListRVAdapter extends RecyclerView.Adapter<ContactsListRVAd
         /*
         TextDrawable will set image drawable like google contacts
          */
-        drawable = TextDrawable.builder()
+        /*drawable = TextDrawable.builder()
                 .buildRect(sTextDrawable, context.getResources().getColor(R.color.colorPrimaryDark));
 
             ((Activity) context).runOnUiThread(new Runnable() {
@@ -89,7 +98,7 @@ public class ContactsListRVAdapter extends RecyclerView.Adapter<ContactsListRVAd
                             .diskCacheStrategy(DiskCacheStrategy.RESULT)
                             .into(holder.ivTextDrawable);
                 }
-            });
+            });*/
 
         /*Glide.with(context)
                 .load(drawable)
@@ -135,12 +144,14 @@ public class ContactsListRVAdapter extends RecyclerView.Adapter<ContactsListRVAd
         TextView tvName;
         TextView tvPhone;
         ImageView ivTextDrawable;
+        TextView tvAlphabet;
 
         public ContactsListHolder(View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tv_rv_name);
             tvPhone = itemView.findViewById(R.id.tv_rv_phone);
             ivTextDrawable = itemView.findViewById(R.id.circular_iv);
+            tvAlphabet = itemView.findViewById(R.id.tv_alphabet);
         }
 
         @Override

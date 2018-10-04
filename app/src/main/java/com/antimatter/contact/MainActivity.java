@@ -95,7 +95,8 @@ public class MainActivity extends AppCompatActivity implements ContactsInterface
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 TextView tv = recyclerView.getLayoutManager().getChildAt(1).findViewById(R.id.tv_rv_name);
-                String sAlphabet = tv.getText().toString().substring(0, 1);
+                String sAlphabet = tv.getText().toString().substring(0, 1).replaceAll("\\d", "#");
+                //sAlphabet = sAlphabet.replaceAll("\\d", "#");
                 tvAlphabet.setText(sAlphabet);
                 //Log.d("Dragging scroll", "Scrolling" + dy);
                 /*if(dy >0 || dy <0){
