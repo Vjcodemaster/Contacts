@@ -1,5 +1,6 @@
 package com.antimatter.contact;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -11,9 +12,6 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.turingtechnologies.materialscrollbar.ICustomAdapter;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
@@ -51,7 +49,7 @@ public class ContactsListRVAdapter extends RecyclerView.Adapter<ContactsListRVAd
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ContactsListHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final ContactsListHolder holder, int position) {
         //String sFullName = alName.get(position);
         String sFullName = alContacts.get(position).split("\"")[1];
         String sTextDrawable;
@@ -73,11 +71,21 @@ public class ContactsListRVAdapter extends RecyclerView.Adapter<ContactsListRVAd
         drawable = TextDrawable.builder()
                 .buildRect(sTextDrawable.toUpperCase(), context.getResources().getColor(R.color.colorPrimaryDark));
 
-        Glide.with(context)
+            ((Activity) context).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Glide.with(context)
+                            .load("")
+                            .placeholder(drawable)
+                            .diskCacheStrategy(DiskCacheStrategy.RESULT)
+                            .into(holder.ivTextDrawable);
+                }
+            });
+        /*Glide.with(context)
                 .load("")
                 .placeholder(drawable)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(holder.ivTextDrawable);
+                .into(holder.ivTextDrawable);*/
 
         /*Glide.with(context)
                 .load(drawable)

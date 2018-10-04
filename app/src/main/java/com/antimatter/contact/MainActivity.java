@@ -3,6 +3,7 @@ package com.antimatter.contact;
 import android.Manifest;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -13,6 +14,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -40,6 +42,8 @@ import java.util.List;
 
 import app_utility.PermissionHandler;
 
+import static android.os.Process.THREAD_PRIORITY_BACKGROUND;
+import static android.os.Process.THREAD_PRIORITY_MORE_FAVORABLE;
 import static app_utility.PermissionHandler.WRITE_CONTACTS_PERMISSION;
 
 public class MainActivity extends AppCompatActivity {
@@ -89,8 +93,10 @@ public class MainActivity extends AppCompatActivity {
                 super.onScrolled(recyclerView, dx, dy);
                 //Log.d("Adapter: ", String.valueOf(recyclerView.getChildAdapterPosition(recyclerView.getLayoutManager().getChildAt(1))));
                 TextView tv = recyclerView.getLayoutManager().getChildAt(1).findViewById(R.id.tv_rv_name);
-                String sAlphabet = tv.getText().toString().substring(0, 1);
-                tvAlphabet.setText(sAlphabet);
+                if(tv.getText().toString().length()>=1) {
+                    String sAlphabet = tv.getText().toString().substring(0, 1);
+                    tvAlphabet.setText(sAlphabet);
+                }
                 //Log.d("Dragging scroll", "Scrolling" + dy);
                 /*if(dy >0 || dy <0){
                     fadeInAndVisibleImage(ivDemo);
@@ -252,7 +258,9 @@ public class MainActivity extends AppCompatActivity {
             //setAdapter();
             //getContacts(MainActivity.this);
             if (alContact.size() == 0)
-                getAllContacts();
+                //new fetchContacts().execute();
+            new fetchContacts().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                //getAllContacts();
         }
     }
 
@@ -457,15 +465,21 @@ public class MainActivity extends AppCompatActivity {
     void getAllContacts() {
         long startnow;
         long endnow;
-        ArrayList<ContactModel> alTmp = new ArrayList<>();
+        ArrayList<ContactModel> alTmp;
         HashSet<String> hsPhoneNo = new HashSet<>();
 
         startnow = android.os.SystemClock.uptimeMillis();
-        ArrayList arrContacts = new ArrayList();
+        /*ArrayList arrContacts = new ArrayList();
 
         Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
         String selection = ContactsContract.Contacts.HAS_PHONE_NUMBER;
-        Cursor cursor = getContentResolver().query(uri, new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone._ID, ContactsContract.Contacts._ID}, selection, null, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
+        Cursor cursor = getContentResolver().query(uri, new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone._ID, ContactsContract.Contacts._ID}, selection, null, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");*/
+
+        String selectionFields =  ContactsContract.RawContacts.ACCOUNT_TYPE + " = ?";
+        String[] selectionArgs = new String[]{"com.google"};
+        Cursor cursor = getContentResolver()
+                .query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                        new String[] {ContactsContract.CommonDataKinds.Phone._ID, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER}, selectionFields, selectionArgs,  ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
@@ -475,12 +489,12 @@ public class MainActivity extends AppCompatActivity {
             String contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
             int phoneContactID = cursor.getInt(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone._ID));
             int contactID = cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts._ID));*/
-            String contactNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-            String phone = contactNumber.replaceAll("[- ()]", "");
-            hsPhoneNo.add(phone);
+            //String contactNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+            //String phone = contactNumber.replaceAll("[- ()]", "");
+            //hsPhoneNo.add(phone);
 
-            if (hsPhoneNo.size() > alContact.size()) {
-                contactInfo.mobileNumber = phone;
+            //if (hsPhoneNo.size() > alContact.size()) {
+                contactInfo.mobileNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
                 //contactInfo.mobileNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)).replaceAll("[- ]","");
                 contactInfo.name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
                 //int phoneContactID = cursor.getInt(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone._ID));
@@ -496,7 +510,7 @@ public class MainActivity extends AppCompatActivity {
                 /*alName.add(contactInfo.name);
                 alPhone.add(contactInfo.mobileNumber);*/
 
-            }
+            //}
             cursor.moveToNext();
         }
         cursor.close();
@@ -555,6 +569,70 @@ public class MainActivity extends AppCompatActivity {
 
         Log.e("size of contacts: ", "" + alContact.size());
         setAdapter(alName, alPhone);
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    private class fetchContacts extends AsyncTask<String, String, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            long startnow;
+            long endnow;
+            HashSet<String> hsPhoneNo = new HashSet<>();
+
+            startnow = android.os.SystemClock.uptimeMillis();
+
+            String selectionFields =  ContactsContract.RawContacts.ACCOUNT_TYPE + " = ?";
+            String[] selectionArgs = new String[]{"com.google"};
+            Cursor cursor = getContentResolver()
+                    .query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                            new String[] {ContactsContract.CommonDataKinds.Phone._ID, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER}, selectionFields, selectionArgs,  ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
+
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                ContactModel contactInfo = new ContactModel();
+
+                contactInfo.mobileNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                contactInfo.name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                contactInfo.id = String.valueOf(cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts._ID)));
+                alContact.add(contactInfo.id + "\"" + contactInfo.name + "\"" + contactInfo.mobileNumber);
+                cursor.moveToNext();
+            }
+            cursor.close();
+
+            Collections.sort(alContact, new Comparator<String>() {
+                @Override
+                public int compare(String lhs, String rhs) {
+                    String s11 = lhs.split("\"")[1];
+                    String s12 = rhs.split("\"")[1];
+                    boolean lhsStartsWithLetter = Character.isLetter(s11.charAt(0));
+                    boolean rhsStartsWithLetter = Character.isLetter(s12.charAt(0));
+
+                    if ((lhsStartsWithLetter && rhsStartsWithLetter) || (!lhsStartsWithLetter && !rhsStartsWithLetter)) {
+                        // they both start with letters or not-a-letters
+                        return s11.compareToIgnoreCase(s12);
+                    } else if (lhsStartsWithLetter) {
+                        // the first string starts with letter and the second one is not
+                        return -1;
+                    } else {
+                        // the second string starts with letter and the first one is not
+                        return 1;
+                    }
+                }
+
+            });
+
+            endnow = android.os.SystemClock.uptimeMillis();
+            Log.e("END", "TimeForContacts " + (endnow - startnow) + " ms");
+
+            Log.e("size of contacts: ", "" + alContact.size());
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            setAdapter(alName, alPhone);
+        }
     }
 
     /*void getAllContacts() {
