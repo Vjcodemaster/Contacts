@@ -3,6 +3,7 @@ package com.antimatter.contact;
 import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,16 +18,22 @@ import com.turingtechnologies.materialscrollbar.ICustomAdapter;
 import net.cachapa.expandablelayout.ExpandableLayout;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 
 import app_utility.TextDrawable;
 
 public class ContactsListRVAdapter extends RecyclerView.Adapter<ContactsListRVAdapter.ContactsListHolder> implements ICustomAdapter {
-    Context context;
-    RecyclerView recyclerView;
-    ArrayList<String> alName;
-    ArrayList<String> alPhone;
-    ArrayList<String> alContacts;
-    TextDrawable drawable;
+    private String sFullName;
+    private String sTextDrawable;
+    private String[] saTextDrawable;
+    private Context context;
+    private RecyclerView recyclerView;
+    private ArrayList<String> alName;
+    private ArrayList<String> alPhone;
+    private ArrayList<String> alContacts;
+    private TextDrawable drawable;
+    private LinkedHashSet<Integer> lhsAlphabetsIndex = new LinkedHashSet<>();
+    private String sTmp;
 
     ContactsListRVAdapter(Context context, RecyclerView recyclerView, ArrayList<String> alName, ArrayList<String> alPhone) {
         this.context = context;
@@ -51,25 +58,27 @@ public class ContactsListRVAdapter extends RecyclerView.Adapter<ContactsListRVAd
     @Override
     public void onBindViewHolder(@NonNull final ContactsListHolder holder, int position) {
         //String sFullName = alName.get(position);
-        String sFullName = alContacts.get(position).split("\"")[1];
-        String sTextDrawable;
-        String[] saTextDrawable;
+        sFullName = alContacts.get(position).split("\"")[1];
         if (sFullName.contains(" ")) {
             saTextDrawable = sFullName.split(" ");
-            if (saTextDrawable.length >= 3)
+            /*if (saTextDrawable.length >= 3)
                 sTextDrawable = saTextDrawable[0].substring(0, 1) + saTextDrawable[1].substring(0, 1) + saTextDrawable[2].substring(0, 1);
-            else
+            else*/
                 sTextDrawable = saTextDrawable[0].substring(0, 1) + saTextDrawable[1].substring(0, 1);
         } else {
             sTextDrawable = sFullName.substring(0, 1);
         }
-        sTextDrawable = sTextDrawable.replaceAll("\\d", "");
+        sTextDrawable = sTextDrawable.replaceAll("\\d", "").toUpperCase();
 
+        /*if(!sTextDrawable.equals(sTmp)){
+            lhsAlphabetsIndex.add(position);
+            //MainActivity.contactsInterface.onContactsChange("ALPHABET", sTextDrawable.substring(0,1), null, position);
+        }*/
         /*
         TextDrawable will set image drawable like google contacts
          */
         drawable = TextDrawable.builder()
-                .buildRect(sTextDrawable.toUpperCase(), context.getResources().getColor(R.color.colorPrimaryDark));
+                .buildRect(sTextDrawable, context.getResources().getColor(R.color.colorPrimaryDark));
 
             ((Activity) context).runOnUiThread(new Runnable() {
                 @Override
@@ -81,11 +90,6 @@ public class ContactsListRVAdapter extends RecyclerView.Adapter<ContactsListRVAd
                             .into(holder.ivTextDrawable);
                 }
             });
-        /*Glide.with(context)
-                .load("")
-                .placeholder(drawable)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(holder.ivTextDrawable);*/
 
         /*Glide.with(context)
                 .load(drawable)
@@ -105,8 +109,12 @@ public class ContactsListRVAdapter extends RecyclerView.Adapter<ContactsListRVAd
                 .into(holder.ivTextDrawable);*/
 
         holder.tvName.setText(sFullName);
-        //holder.tvPhone.setText(alPhone.get(position));
         holder.tvPhone.setText(alContacts.get(position).split("\"")[2]);
+        /*sTmp = sTextDrawable;
+        int firstVisiblePosition = ((LinearLayoutManager)recyclerView.getLayoutManager()).findLastVisibleItemPosition();
+        if(lhsAlphabetsIndex.contains(firstVisiblePosition)){
+            MainActivity.contactsInterface.onContactsChange("ALPHABET", sTextDrawable.substring(0,1), null, position);
+        }*/
         //holder.ivTextDrawable.setImageDrawable(drawable);
     }
 
@@ -117,9 +125,10 @@ public class ContactsListRVAdapter extends RecyclerView.Adapter<ContactsListRVAd
 
     @Override
     public String getCustomStringForElement(int element) {
-
-        //return alName.get(element).substring(0, 1);
-        return alContacts.get(element).split("\"")[1].substring(0, 1);
+        String sElement = alContacts.get(element).split("\"")[1].substring(0, 1);
+        MainActivity.contactsInterface.onContactsChange("ALPHABET", sElement, null, element);
+        return alName.get(element).substring(0, 1);
+        //return sElement;
     }
 
     public class ContactsListHolder extends RecyclerView.ViewHolder implements View.OnClickListener, ExpandableLayout.OnExpansionUpdateListener {

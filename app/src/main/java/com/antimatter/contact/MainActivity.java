@@ -40,13 +40,14 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import app_utility.ContactsInterface;
 import app_utility.PermissionHandler;
 
 import static android.os.Process.THREAD_PRIORITY_BACKGROUND;
 import static android.os.Process.THREAD_PRIORITY_MORE_FAVORABLE;
 import static app_utility.PermissionHandler.WRITE_CONTACTS_PERMISSION;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ContactsInterface {
     private RecyclerView recyclerView;
 
     TextView tvAlphabet;
@@ -61,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<String> alName = new ArrayList<>();
     ArrayList<String> alPhone = new ArrayList<>();
     ContactsListRVAdapter contactsListRVAdapter;
+    public static ContactsInterface contactsInterface;
 
     float dX, dY;
     ObjectAnimator fadeOutAnimator;
@@ -70,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        contactsInterface = this;
         init();
     }
 
@@ -91,12 +94,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                //Log.d("Adapter: ", String.valueOf(recyclerView.getChildAdapterPosition(recyclerView.getLayoutManager().getChildAt(1))));
                 TextView tv = recyclerView.getLayoutManager().getChildAt(1).findViewById(R.id.tv_rv_name);
-                if(tv.getText().toString().length()>=1) {
-                    String sAlphabet = tv.getText().toString().substring(0, 1);
-                    tvAlphabet.setText(sAlphabet);
-                }
+                String sAlphabet = tv.getText().toString().substring(0, 1);
+                tvAlphabet.setText(sAlphabet);
                 //Log.d("Dragging scroll", "Scrolling" + dy);
                 /*if(dy >0 || dy <0){
                     fadeInAndVisibleImage(ivDemo);
@@ -259,8 +259,8 @@ public class MainActivity extends AppCompatActivity {
             //getContacts(MainActivity.this);
             if (alContact.size() == 0)
                 //new fetchContacts().execute();
-            new fetchContacts().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                //getAllContacts();
+                new fetchContacts().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            //getAllContacts();
         }
     }
 
@@ -416,6 +416,15 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onContactsChange(String sCase, String sElement, ArrayList<String> alContacts, int pos) {
+        switch (sCase){
+            case "ALPHABET":
+                //tvAlphabet.setText(sElement);
+                break;
+        }
+    }
+
     public class ContactModel {
         public String id;
         public String name;
@@ -475,11 +484,11 @@ public class MainActivity extends AppCompatActivity {
         String selection = ContactsContract.Contacts.HAS_PHONE_NUMBER;
         Cursor cursor = getContentResolver().query(uri, new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone._ID, ContactsContract.Contacts._ID}, selection, null, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");*/
 
-        String selectionFields =  ContactsContract.RawContacts.ACCOUNT_TYPE + " = ?";
+        String selectionFields = ContactsContract.RawContacts.ACCOUNT_TYPE + " = ?";
         String[] selectionArgs = new String[]{"com.google"};
         Cursor cursor = getContentResolver()
                 .query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                        new String[] {ContactsContract.CommonDataKinds.Phone._ID, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER}, selectionFields, selectionArgs,  ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
+                        new String[]{ContactsContract.CommonDataKinds.Phone._ID, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER}, selectionFields, selectionArgs, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
@@ -494,19 +503,19 @@ public class MainActivity extends AppCompatActivity {
             //hsPhoneNo.add(phone);
 
             //if (hsPhoneNo.size() > alContact.size()) {
-                contactInfo.mobileNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                //contactInfo.mobileNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)).replaceAll("[- ]","");
-                contactInfo.name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                //int phoneContactID = cursor.getInt(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone._ID));
-                contactInfo.id = String.valueOf(cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts._ID)));
-                alTmp = new ArrayList<>();
-                alTmp.add(contactInfo);
-                //Log.d("contacts: ", "name " + contactName + " " + " PhoneContactID " + phoneContactID + "  ContactID " + contactID +"," + "number" +" " + contactNumber);
-                //if(!alPhone.contains(contactInfo.mobileNumber)) {
-                //lHMContactsList.put(contactInfo.id, alTmp);
-                //alContact.add(contactInfo.id + "," + contactInfo.name + "," + contactInfo.mobileNumber);
-                //alContact.add(contactInfo.id + "\"" + contactInfo.name + "\"" + contactInfo.mobileNumber);
-                alContact.add(contactInfo.id + "\"" + contactInfo.name + "\"" + contactInfo.mobileNumber);
+            contactInfo.mobileNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+            //contactInfo.mobileNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)).replaceAll("[- ]","");
+            contactInfo.name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+            //int phoneContactID = cursor.getInt(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone._ID));
+            contactInfo.id = String.valueOf(cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts._ID)));
+            alTmp = new ArrayList<>();
+            alTmp.add(contactInfo);
+            //Log.d("contacts: ", "name " + contactName + " " + " PhoneContactID " + phoneContactID + "  ContactID " + contactID +"," + "number" +" " + contactNumber);
+            //if(!alPhone.contains(contactInfo.mobileNumber)) {
+            //lHMContactsList.put(contactInfo.id, alTmp);
+            //alContact.add(contactInfo.id + "," + contactInfo.name + "," + contactInfo.mobileNumber);
+            //alContact.add(contactInfo.id + "\"" + contactInfo.name + "\"" + contactInfo.mobileNumber);
+            alContact.add(contactInfo.id + "\"" + contactInfo.name + "\"" + contactInfo.mobileNumber);
                 /*alName.add(contactInfo.name);
                 alPhone.add(contactInfo.mobileNumber);*/
 
@@ -578,20 +587,18 @@ public class MainActivity extends AppCompatActivity {
         protected String doInBackground(String... params) {
             long startnow;
             long endnow;
-            HashSet<String> hsPhoneNo = new HashSet<>();
 
             startnow = android.os.SystemClock.uptimeMillis();
 
-            String selectionFields =  ContactsContract.RawContacts.ACCOUNT_TYPE + " = ?";
+            String selectionFields = ContactsContract.RawContacts.ACCOUNT_TYPE + " = ?";
             String[] selectionArgs = new String[]{"com.google"};
             Cursor cursor = getContentResolver()
                     .query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                            new String[] {ContactsContract.CommonDataKinds.Phone._ID, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER}, selectionFields, selectionArgs,  ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
+                            new String[]{ContactsContract.CommonDataKinds.Phone._ID, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER}, selectionFields, selectionArgs, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
 
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
                 ContactModel contactInfo = new ContactModel();
-
                 contactInfo.mobileNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
                 contactInfo.name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
                 contactInfo.id = String.valueOf(cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts._ID)));

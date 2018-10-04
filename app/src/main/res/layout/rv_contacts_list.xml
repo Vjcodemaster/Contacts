@@ -39,8 +39,8 @@
 
                 <ImageView
                     android:id="@+id/circular_iv"
-                    android:layout_width="40dp"
-                    android:layout_height="30dp"
+                    android:layout_width="45dp"
+                    android:layout_height="35dp"
                     android:contentDescription="@string/app_name" />
 
 
@@ -74,7 +74,7 @@
 
         </LinearLayout>
 
-        <TextView
+        <!--<TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="end"
@@ -82,6 +82,6 @@
             android:gravity="center"
             android:text="A"
             android:textAppearance="@android:style/TextAppearance.Medium"
-            android:textColor="@color/colorAccent" />
+            android:textColor="@color/colorAccent" />-->
     <!--</FrameLayout>-->
 </FrameLayout>
