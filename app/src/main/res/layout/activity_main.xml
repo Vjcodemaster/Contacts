@@ -31,6 +31,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/gradient"
+        android:scrollbarStyle="outsideOverlay"
         app:fastScrollEnabled="true"
         app:fastScrollHorizontalThumbDrawable="@drawable/thumb_drawable"
         app:fastScrollHorizontalTrackDrawable="@drawable/line_drawable"
@@ -44,11 +45,20 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
         android:gravity="center"
+        android:textAllCaps="true"
         android:textAppearance="@android:style/TextAppearance.Medium"
         android:background="@drawable/alphabet_view"
         android:text="A"
         android:textColor="@android:color/white"
         android:visibility="gone" />
+
+    <View
+        android:id="@+id/view_bg"
+        android:layout_width="3dp"
+        android:visibility="gone"
+        android:background="@color/colorAccent"
+        android:layout_alignParentEnd="true"
+        android:layout_height="match_parent"/>
 
     <!--<ImageView
         android:layout_width="70dp"

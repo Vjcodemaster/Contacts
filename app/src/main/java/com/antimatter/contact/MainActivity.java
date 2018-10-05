@@ -26,8 +26,6 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -35,7 +33,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -43,8 +40,6 @@ import java.util.List;
 import app_utility.ContactsInterface;
 import app_utility.PermissionHandler;
 
-import static android.os.Process.THREAD_PRIORITY_BACKGROUND;
-import static android.os.Process.THREAD_PRIORITY_MORE_FAVORABLE;
 import static app_utility.PermissionHandler.WRITE_CONTACTS_PERMISSION;
 
 public class MainActivity extends AppCompatActivity implements ContactsInterface {
@@ -52,7 +47,9 @@ public class MainActivity extends AppCompatActivity implements ContactsInterface
 
     TextView tvAlphabet;
     ImageView ivDemo;
+    View view;
     int overallXScroll;
+    boolean onScrolledStateChangedCalled = false;
 
     LinkedHashMap<String, ArrayList<ContactModel>> lHMContactsList = new LinkedHashMap<>();
     ArrayList<String> alContact = new ArrayList<>();
@@ -64,7 +61,6 @@ public class MainActivity extends AppCompatActivity implements ContactsInterface
     ContactsListRVAdapter contactsListRVAdapter;
     public static ContactsInterface contactsInterface;
 
-    float dX, dY;
     ObjectAnimator fadeOutAnimator;
 
 
@@ -78,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements ContactsInterface
 
     private void init() {
         tvAlphabet = findViewById(R.id.tv_alphabet);
+        view = findViewById(R.id.view_bg);
         //ivDemo = findViewById(R.id.iv_demo);
 
         recyclerView = findViewById(R.id.rv_contacts_list);
@@ -100,9 +97,9 @@ public class MainActivity extends AppCompatActivity implements ContactsInterface
                 tvAlphabet.setText(sAlphabet);
                 //Log.d("Dragging scroll", "Scrolling" + dy);
                 /*if(dy >0 || dy <0){
-                    fadeInAndVisibleImage(ivDemo);
+                    fadeInAndVisibleImage(tvAlphabet);
                 } else
-                    fadeOutAndHideImage(ivDemo);*/
+                    fadeOutAndHideImage(tvAlphabet);*/
 
                 /*LinearLayoutManager manager = (LinearLayoutManager) recyclerView.getLayoutManager();
                 int position = manager.findFirstVisibleItemPosition();
@@ -124,10 +121,12 @@ public class MainActivity extends AppCompatActivity implements ContactsInterface
                     case RecyclerView.SCROLL_STATE_IDLE:
                         //ivDemo.setVisibility(View.GONE);
                         fadeOutAndHideImage(tvAlphabet);
+                        view.setVisibility(View.GONE);
                         Log.d("NO SCROLL", "The RecyclerView is not scrolling");
                         break;
                     case RecyclerView.SCROLL_STATE_DRAGGING:
                         fadeInAndVisibleImage(tvAlphabet);
+                        view.setVisibility(View.VISIBLE);
                         //ivDemo.setVisibility(View.VISIBLE);
                         Log.d("Scrolling", "Scrolling now");
                         break;
@@ -419,7 +418,7 @@ public class MainActivity extends AppCompatActivity implements ContactsInterface
 
     @Override
     public void onContactsChange(String sCase, String sElement, ArrayList<String> alContacts, int pos) {
-        switch (sCase){
+        switch (sCase) {
             case "ALPHABET":
                 //tvAlphabet.setText(sElement);
                 break;
