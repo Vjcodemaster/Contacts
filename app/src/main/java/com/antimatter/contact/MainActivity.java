@@ -82,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements ContactsInterface
         mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(mLinearLayoutManager);
         //recyclerView.addItemDecoration(new DividerItemDecoration(MainActivity.this, DividerItemDecoration.VERTICAL));
+        recyclerView.setItemViewCacheSize(40);
         recyclerView.setHasFixedSize(true);
         recyclerView.setDrawingCacheEnabled(true);
         recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
