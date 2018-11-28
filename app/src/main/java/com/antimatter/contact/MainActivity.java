@@ -62,6 +62,9 @@ public class MainActivity extends AppCompatActivity implements ContactsInterface
     public static ContactsInterface contactsInterface;
 
     ObjectAnimator fadeOutAnimator;
+    boolean isScrollIdle = true;
+    boolean isScrolledViaScrollBar = true;
+    boolean isScrollViaSBInProgress = false;
 
 
     @Override
@@ -87,7 +90,6 @@ public class MainActivity extends AppCompatActivity implements ContactsInterface
         recyclerView.setDrawingCacheEnabled(true);
         recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
 
-
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -95,7 +97,17 @@ public class MainActivity extends AppCompatActivity implements ContactsInterface
                 TextView tv = recyclerView.getLayoutManager().getChildAt(1).findViewById(R.id.tv_rv_name);
                 String sAlphabet = tv.getText().toString().substring(0, 1).replaceAll("\\d", "#");
                 //sAlphabet = sAlphabet.replaceAll("\\d", "#");
+
                 tvAlphabet.setText(sAlphabet);
+                /*if(isScrollIdle){
+                    fadeInAndVisibleImage(tvAlphabet);
+                    view.setVisibility(View.VISIBLE);
+                }*/
+                if(isScrolledViaScrollBar && isScrollIdle && !isScrollViaSBInProgress){
+                    fadeInAndVisibleImage(tvAlphabet);
+                    view.setVisibility(View.VISIBLE);
+                    isScrollViaSBInProgress = true;
+                }
                 //Log.d("Dragging scroll", "Scrolling" + dy);
                 /*if(dy >0 || dy <0){
                     fadeInAndVisibleImage(tvAlphabet);
@@ -118,18 +130,24 @@ public class MainActivity extends AppCompatActivity implements ContactsInterface
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
+                isScrolledViaScrollBar = false;
+                isScrollViaSBInProgress = false;
                 switch (newState) {
                     case RecyclerView.SCROLL_STATE_IDLE:
                         //ivDemo.setVisibility(View.GONE);
                         fadeOutAndHideImage(tvAlphabet);
                         view.setVisibility(View.GONE);
                         Log.d("NO SCROLL", "The RecyclerView is not scrolling");
+                        isScrollIdle = true;
                         break;
                     case RecyclerView.SCROLL_STATE_DRAGGING:
-                        fadeInAndVisibleImage(tvAlphabet);
-                        view.setVisibility(View.VISIBLE);
+                        if (isScrollIdle) {
+                            fadeInAndVisibleImage(tvAlphabet);
+                            view.setVisibility(View.VISIBLE);
+                        }
                         //ivDemo.setVisibility(View.VISIBLE);
                         Log.d("Scrolling", "Scrolling now");
+                        isScrollIdle = false;
                         break;
                     case RecyclerView.SCROLL_STATE_SETTLING:
                         tvAlphabet.setVisibility(View.VISIBLE);
@@ -137,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements ContactsInterface
                         Log.d("SCROLL SETTLE", "Scroll settling");
                         break;
                 }
+                isScrolledViaScrollBar = true;
                 /*
                 use below code to move bubble
                  */
