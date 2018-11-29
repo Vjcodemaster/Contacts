@@ -17,6 +17,9 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.provider.ContactsContract;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
@@ -65,7 +68,12 @@ public class MainActivity extends AppCompatActivity implements ContactsInterface
     boolean isScrollIdle = true;
     boolean isScrolledViaScrollBar = true;
     boolean isScrollViaSBInProgress = false;
-
+    boolean isScrollEnd = true;
+    int nAlphabetFlag = 0;
+    long startnow;
+    long endnow;
+    Handler handler = new Handler();
+    Runnable runnableCode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,8 +100,9 @@ public class MainActivity extends AppCompatActivity implements ContactsInterface
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            public void onScrolled(final RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
+                isScrollEnd = false;
                 TextView tv = recyclerView.getLayoutManager().getChildAt(1).findViewById(R.id.tv_rv_name);
                 String sAlphabet = tv.getText().toString().substring(0, 1).replaceAll("\\d", "#");
                 //sAlphabet = sAlphabet.replaceAll("\\d", "#");
@@ -103,11 +112,32 @@ public class MainActivity extends AppCompatActivity implements ContactsInterface
                     fadeInAndVisibleImage(tvAlphabet);
                     view.setVisibility(View.VISIBLE);
                 }*/
-                if(isScrolledViaScrollBar && isScrollIdle && !isScrollViaSBInProgress){
+                if (isScrolledViaScrollBar && isScrollIdle && !isScrollViaSBInProgress && nAlphabetFlag == 1) {
                     fadeInAndVisibleImage(tvAlphabet);
                     view.setVisibility(View.VISIBLE);
                     isScrollViaSBInProgress = true;
+
+                    runnableCode = new Runnable() {
+                        @Override
+                        public void run() {
+                            if(isScrollEnd){
+                                fadeOutAndHideImage(tvAlphabet);
+                                handler.removeCallbacks(runnableCode);
+                                isScrollIdle = true;
+                                //isScrolledViaScrollBar = false;
+                                isScrollViaSBInProgress = false;
+                            } else {
+                                handler.postDelayed(runnableCode, 2000);
+                            }
+                            // Repeat this the same runnable code block again another 2 seconds
+                            isScrollEnd = true;
+                        }
+                    };
+// Start the initial runnable task by posting through the handler
+                    handler.post(runnableCode);
                 }
+
+
                 //Log.d("Dragging scroll", "Scrolling" + dy);
                 /*if(dy >0 || dy <0){
                     fadeInAndVisibleImage(tvAlphabet);
@@ -124,6 +154,7 @@ public class MainActivity extends AppCompatActivity implements ContactsInterface
                 ObjectAnimator anim = ObjectAnimator.ofFloat(ivDemo,"y",Offset);
                 anim.setDuration(3000); // duration 3 seconds
                 anim.start();*/
+                nAlphabetFlag = 1;
             }
 
 
