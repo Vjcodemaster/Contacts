@@ -68,7 +68,7 @@ public class ContactsListRVAdapter extends RecyclerView.Adapter<ContactsListRVAd
 
         //sTextDrawable = sTextDrawable.replaceAll("\\d", "");
         if (!sTextDrawable.substring(0, 1).toLowerCase().contains("\\d"))
-            sTextDrawable = sTextDrawable.replaceAll("\\:|\\d|\\+|\\)|\\(", "#").trim().toUpperCase();
+            sTextDrawable = sTextDrawable.replaceAll(":|\\d|\\+|\\)|\\(", "#").trim().toUpperCase();
         if (sTextDrawable.substring(0, 1).equals("#"))
             sTextDrawable = "";
         sTextDrawable = sTextDrawable.replaceAll("#", "");

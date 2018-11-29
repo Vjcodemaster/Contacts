@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements ContactsInterface
                                 //isScrolledViaScrollBar = false;
                                 isScrollViaSBInProgress = false;
                             } else {
-                                handler.postDelayed(runnableCode, 2000);
+                                handler.postDelayed(runnableCode, 1600);
                             }
                             // Repeat this the same runnable code block again another 2 seconds
                             isScrollEnd = true;
