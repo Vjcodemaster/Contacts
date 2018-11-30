@@ -184,6 +184,7 @@ public class MainActivity extends AppCompatActivity implements ContactsInterface
                         tvAlphabet.setVisibility(View.VISIBLE);
                         //ivDemo.setVisibility(View.VISIBLE);
                         Log.d("SCROLL SETTLE", "Scroll settling");
+                        isScrollIdle = false;
                         break;
                 }
                 isScrolledViaScrollBar = true;
